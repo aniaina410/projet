@@ -1,28 +1,30 @@
-// src/App.jsx
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Valeurs from "./pages/Valeurs";
+import { Routes, Route, Navigate } from "react-router-dom";
 
-function PrivateRoute({ children }) {
-  const user = localStorage.getItem("svo_user");
-  return user ? children : <Navigate to="/" replace />;
-}
+import PrivateRoute from "./components/PrivateRoute";
+import Layout from "./components/Layout";
+
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Utilisateurs from "./pages/Utilisateurs";
+import Valeurs from "./pages/Valeurs";
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        } />
-        {
+    <Routes>
+      {/* PUBLIC */}
+      <Route path="/login" element={<Login />} />
+
+      {/* PROTÉGÉ */}
+      <Route element={<PrivateRoute />}>
+        <Route element={<Layout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/utilisateurs" element={<Utilisateurs />} />
           <Route path="/valeurs" element={<Valeurs />} />
-        }
-      </Routes>
-    </BrowserRouter>
+        </Route>
+      </Route>
+
+      {/* FALLBACK */}
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   );
 }

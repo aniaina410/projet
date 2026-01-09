@@ -3,10 +3,22 @@
 import os
 import sys
 
-
 def main():
     """Run administrative tasks."""
+    
+    # ✅ CONFIGURATION ORACLE - AVANT TOUTE IMPORTATION DJANGO
+    os.environ['NLS_LANG'] = 'AMERICAN_AMERICA.AL32UTF8'
+    os.environ['NLS_NCHAR'] = 'AL32UTF8'
+    os.environ['NLS_DATE_FORMAT'] = 'YYYY-MM-DD HH24:MI:SS'
+    os.environ['NLS_TIMESTAMP_FORMAT'] = 'YYYY-MM-DD HH24:MI:SS.FF'
+    
+    # Forcer l'encoding Python
+    if sys.version_info[0] >= 3:
+        import locale
+        locale.setlocale(locale.LC_ALL, '')
+    
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+    
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

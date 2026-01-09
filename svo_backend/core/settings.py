@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import os
 
 AUTH_USER_MODEL = "api.Utilisateur"
 
@@ -30,7 +31,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 
@@ -47,7 +49,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'api',
     'django_filters',
-    'django_extensions'
+    'django_extensions',
+    'corsheaders'
 ]
 
 REST_FRAMEWORK = {
@@ -68,6 +71,7 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'USER_ID_FIELD': "id_utilisateur",
     'USER_ID_CLAIM': "id_utilisateur",
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
 
 
@@ -79,7 +83,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'core.urls'
 
@@ -104,13 +111,17 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+os.environ['NLS_LANG'] = 'AMERICAN_AMERICA.AL32UTF8'
+os.environ['NLS_NCHAR'] = 'AL32UTF8'
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 DATABASES = {
     'default': {
     'ENGINE': 'django.db.backends.oracle',
     'NAME': 'localhost:1521/XEPDB1',
 	'USER': 'SVO34',
 	'PASSWORD': '123456789',
-
+    
     }
 }
 

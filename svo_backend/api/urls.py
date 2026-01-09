@@ -20,10 +20,11 @@ router.register("extraits", ValeurExtraitViewSet)
 router.register("valeurs", ValeurViewSet)
 router.register("historiques", HistoriqueValeurViewSet)
 router.register("validations", ValidationViewSet)
+# router.register(r'valeurs', ValeurViewSet, basename= 'valeur')
 
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('auth/login/', LoginView.as_view(), name='login'),
-    path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/login/', LoginView.as_view(), name='token_obtain_pair'),
+    path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh')
 ]

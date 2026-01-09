@@ -13,7 +13,7 @@ class IsChefOrAdmin(BasePermission):
         if not user or not user.is_authenticated:
             return False
         rn = getattr(user, "id_role", None) and user.id_role.role_nom
-        return rn in ("ADMIN", "CHEF")
+        return rn in ("ADMIN")
 
 class IsAgentOrAbove(BasePermission):
     def has_permission(self, request, view):
@@ -21,4 +21,4 @@ class IsAgentOrAbove(BasePermission):
         if not user or not user.is_authenticated:
             return False
         rn = getattr(user, "id_role", None) and user.id_role.role_nom
-        return rn in ("ADMIN", "CHEF", "AGENT")
+        return rn in ("ADMIN", "ANALYSTE", "VALIDATEUR", "UTILISATEUR")

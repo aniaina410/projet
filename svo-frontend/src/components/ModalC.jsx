@@ -1,118 +1,114 @@
-export default function ModalC({ visible, onClose, onSubmit, onChange, onImageUpload }) {
+import { useEffect, useState } from "react";
+
+export default function ModalUser({
+  visible,
+  onClose,
+  onSubmit,
+  roles,
+  directions,
+  services,
+  initialData
+}) {
+  const [form, setForm] = useState({
+    matricule: "",
+    nom_utilisateur: "",
+    prenom_utilisateur: "",
+    login: "",
+    email: "",
+    id_role: "",
+    id_direction: "",
+    id_service: "",
+  });
+
+  const [filteredServices, setFilteredServices] = useState([]);
+
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        matricule: initialData.matricule,
+        nom_utilisateur: initialData.nom_utilisateur,
+        prenom_utilisateur: initialData.prenom_utilisateur,
+        login: initialData.login,
+        email: initialData.email,
+        id_role: initialData.id_role?.id_role,
+        id_direction: initialData.id_service?.id_direction?.id_direction,
+        id_service: initialData.id_service?.id_service,
+      });
+    }
+  }, [initialData]);
+
+  useEffect(() => {
+    if (!form.id_direction) {
+      setFilteredServices(services);
+    } else {
+      setFilteredServices(
+        services.filter(
+          s => s.id_direction === Number(form.id_direction)
+        )
+      );
+    }
+  }, [form.id_direction, services]);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(form);
+  };
+
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center px-4 z-50">
-      <div className="bg-white w-[95%] max-w-7xl p-8 rounded-xl shadow-xl overflow-y-auto max-h-[90vh]">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white w-full max-w-3xl rounded-xl p-6">
+        <h2 className="text-xl font-bold mb-4">
+          {initialData ? "Modifier utilisateur" : "Ajouter utilisateur"}
+        </h2>
 
-        {/* HEADER */}
-        <div className="flex justify-between items-center border-b pb-4 mb-6">
-          <h2 className="text-3xl font-bold text-douane-primary">Ajouter une valeur</h2>
-          <button
-            onClick={onClose}
-            className="text-red-500 font-bold text-2xl hover:text-red-700"
-          >
-            ✕
-          </button>
-        </div>
+        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+          <input name="matricule" placeholder="Matricule" onChange={handleChange} value={form.matricule} />
+          <input name="login" placeholder="Login" onChange={handleChange} value={form.login} />
+          <input name="nom_utilisateur" placeholder="Nom" onChange={handleChange} value={form.nom_utilisateur} />
+          <input name="prenom_utilisateur" placeholder="Prénom" onChange={handleChange} value={form.prenom_utilisateur} />
+          <input name="email" placeholder="Email" onChange={handleChange} value={form.email} />
 
-        {/* FORMULAIRE */}
-        <form onSubmit={onSubmit} className="grid grid-cols-3 gap-8">
+          <select name="id_role" onChange={handleChange} value={form.id_role}>
+            <option value="">-- Rôle --</option>
+            {roles.map(r => (
+              <option key={r.id_role} value={r.id_role}>
+                {r.role_nom}
+              </option>
+            ))}
+          </select>
 
-          {/* COLONNE 1 */}
-          <div className="space-y-4">
-            <Field label="Code SH" name="codesh" onChange={onChange} required />
-            <Field label="Unité" name="unite" onChange={onChange} />
-            <Field label="Quantité" name="quantite" type="number" onChange={onChange} />
-            <Field label="PU Facture" name="pu_fact" type="number" onChange={onChange} />
-            <Field label="PU Redressement" name="pu_redr" type="number" onChange={onChange} />
-            <Field label="Méthode" name="methode" onChange={onChange} />
-            <Field label="Incoterm" name="incoterm" onChange={onChange} />
-          </div>
+          <select name="id_direction" onChange={handleChange} value={form.id_direction}>
+            <option value="">-- Direction --</option>
+            {directions.map(d => (
+              <option key={d.id_direction} value={d.id_direction}>
+                {d.direction_nom}
+              </option>
+            ))}
+          </select>
 
-          {/* COLONNE 2 */}
-          <div className="space-y-4">
-            <Field label="Devise" name="devise" onChange={onChange} />
-            <Field label="Source" name="source" onChange={onChange} />
-            <Field label="Référence Facture" name="ref_fact" onChange={onChange} />
+          <select name="id_service" onChange={handleChange} value={form.id_service}>
+            <option value="">-- Service --</option>
+            {filteredServices.map(s => (
+              <option key={s.id_service} value={s.id_service}>
+                {s.service_nom}
+              </option>
+            ))}
+          </select>
 
-            <div>
-              <label className="block font-semibold">Statut</label>
-              <select name="status" onChange={onChange} className="input-field">
-                <option value="EN_ATTENTE">EN_ATTENTE</option>
-                <option value="VALIDE">VALIDÉ</option>
-                <option value="REJETE">REJETÉ</option>
-              </select>
-            </div>
-
-            <Field label="Poids Brut" name="poid_brut" type="number" onChange={onChange} />
-            <Field label="Poids Net" name="poid_net" type="number" onChange={onChange} />
-            <Field label="Conditionnement" name="conditionnement" onChange={onChange} />
-          </div>
-
-          {/* COLONNE 3 */}
-          <div className="space-y-4">
-            <Field label="Exportateur" name="exportateur" onChange={onChange} />
-            <Field label="Importateur" name="importateur" onChange={onChange} />
-            <Field label="Pays destinataire" name="pays_destinataire" onChange={onChange} />
-            <Field label="Date effet" name="date_effet" type="date" onChange={onChange} />
-
-            <div>
-              <label className="block font-semibold">Description</label>
-              <textarea name="descrip" onChange={onChange} className="input-field"></textarea>
-            </div>
-
-            <div>
-              <label className="block font-semibold">Détails Marchandise</label>
-              <textarea name="details_marchandise" onChange={onChange} className="input-field"></textarea>
-            </div>
-
-            <div>
-              <label className="block font-semibold">Image</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={onImageUpload}
-                className="input-field"
-              />
-            </div>
-          </div>
-
-          {/* BUTTONS */}
-          <div className="col-span-3 flex justify-end gap-4 mt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-8 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
-            >
-              Annuler
-            </button>
-
-            <button
-              type="submit"
-              className="px-8 py-2 bg-douane-primary text-white rounded-lg hover:bg-douane-secondary"
-            >
+          <div className="col-span-2 flex justify-end gap-4 mt-4">
+            <button type="button" onClick={onClose}>Annuler</button>
+            <button type="submit" className="bg-douane-primary text-white px-6 py-2 rounded">
               Enregistrer
             </button>
           </div>
         </form>
       </div>
-    </div>
-  );
-}
-
-/* PETIT COMPOSANT RÉUTILISABLE POUR RÉDUIRE LE CODE */
-function Field({ label, name, type = "text", onChange, required = false }) {
-  return (
-    <div>
-      <label className="block font-semibold">{label}</label>
-      <input
-        name={name}
-        type={type}
-        onChange={onChange}
-        required={required}
-        className="input-field"
-      />
     </div>
   );
 }

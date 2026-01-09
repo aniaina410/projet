@@ -1,38 +1,45 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions
-from django.contrib.auth.hashers import check_password
+from rest_framework import status, permissions, authentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Utilisateur
 
+from .serializers import LoginSerializer
+
 class LoginView(APIView):
-    permission_classes = [permissions.AllowAny] 
+    authentication_classes = []   # 🔥 OBLIGATOIRE
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        login = request.data.get("login")
-        password = request.data.get("password")
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        login = serializer.validated_data["login"]
+        password = serializer.validated_data["password"]
 
         try:
             user = Utilisateur.objects.get(login=login)
         except Utilisateur.DoesNotExist:
-            return Response({"detail": "Login incorrect"}, status=400)
+            return Response(
+                {"detail": "Login incorrect"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
-        if not check_password(password, user.password):
-            return Response({"detail": "Mot de passe incorrect"}, status=400)
+        if not user.check_password(password):
+            return Response(
+                {"detail": "Mot de passe incorrect"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
         refresh = RefreshToken.for_user(user)
-        access = refresh.access_token
 
         return Response({
-            "access": str(access),
+            "access": str(refresh.access_token),
             "refresh": str(refresh),
             "utilisateur": {
                 "id": user.id_utilisateur,
-                "nom": user.nom_utilisateur,
-                "prenom": user.prenom_utilisateur,
-                "role": user.id_role.role_nom
+                "login": user.login,
+                "role": user.id_role.role_nom,
             }
         })
-
-
 
